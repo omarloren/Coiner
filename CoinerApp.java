@@ -23,15 +23,13 @@ public class CoinerApp implements Application{
     public static MongoConnection mongo;*/
     public static SessionID sessionID;
     private Handler handler;
-    private boolean streaming;
-    private boolean recording;
+    
     /*
      * Constructor 
      */
     public CoinerApp(String userName, String passWord, boolean streaming, boolean recording){
         this.userName = userName;
         this.passWord = passWord;
-        
         this.handler = new Handler(streaming, recording);
     }
     @Override

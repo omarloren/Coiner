@@ -28,9 +28,13 @@ public class Candle {
     private String vela;
     private String json;
     BasicDBObject doc;
+    private boolean streaming;
+    private boolean recording;
     
-    Candle(String symbol){
+    Candle(String symbol, boolean streaming, boolean recording){
         this.symbol = symbol;
+        this.streaming =  streaming;
+        this.recording = recording;
         mongo = MongoConnection.getInstance();
         coll = mongo.db.getCollection(this.formatString(symbol));
         doc = new BasicDBObject();
@@ -42,16 +46,23 @@ public class Candle {
             high = Collections.max(precios);
             low = Collections.min(precios);
             close = precios.get(precios.size()-1);
-            vela = fixToJson.parseVela(this.symbol, open,high, low,close, (msj.getMDEntrySize().getValue()/100000));
-            doc = (BasicDBObject)JSON.parse(vela);
-            coll.insert(doc);
-            precios.clear();
-            try {
-                Node.send(msj.getMDEntryPx().getValue(), this.symbol);
-            } catch (IOException ex) {
-                Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
+            if(this.recording){
+                vela = fixToJson.parseVela(this.symbol, open,high, low,close, (msj.getMDEntrySize().getValue()/100000));
+                doc = (BasicDBObject)JSON.parse(vela);
+                coll.insert(doc);
             }
+            
+            if(this.streaming){
+                try {
+                    Node.send(msj.getMDEntryPx().getValue(), this.symbol);
+                } catch (IOException ex) {
+                    Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+            precios.clear();
         }
+        
         endTime = this.checkTime(GMTDate.getTime()+1);
         precios.add(msj.getMDEntryPx().getValue());
     }

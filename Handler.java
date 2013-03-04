@@ -29,13 +29,16 @@ public class Handler extends MessageCracker{
     private ArrayList<Candle> velas = new ArrayList();
     private MongoConnection mongo = MongoConnection.getInstance();
     private DBCollection coll;
+    private boolean streaming;
+    private boolean recording;
     /**
      * 
      * @param streaming
      * @param recording 
      */    
     public Handler(boolean streaming, boolean recording){
-        
+        this.streaming =  streaming;
+        this.recording = recording;
     }
     
     @Override
@@ -43,7 +46,7 @@ public class Handler extends MessageCracker{
             SessionID sessionID) {
         for (int i=0; i<MONEDAS.length;i++){
             this.sendIncrementalRefresh(MONEDAS[i], sessionID);
-            velas.add(new Candle(MONEDAS[i]));
+            velas.add(new Candle(MONEDAS[i],this.streaming, this.recording));
         }        
     }
     
@@ -119,6 +122,7 @@ public class Handler extends MessageCracker{
             Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
     private Candle getVela(String symbol){
         Candle temp = null;
         for(int i=0; i<velas.size();i++){
@@ -130,25 +134,33 @@ public class Handler extends MessageCracker{
         return temp;
     }
     private void savetick(String symbol, String json){
-        BasicDBObject doc;
-        
-        coll = mongo.tickDB.getCollection( unSlash(symbol));
-        
-        doc = (BasicDBObject)JSON.parse(json);
-        coll.insert(doc);
+        /**
+         * Solo enviamos aperturas ticks si esta habilitado el Recording en el 
+         * Archivo de configuracion. 
+         */
+        if(this.recording){
+            BasicDBObject doc;
+            coll = mongo.tickDB.getCollection( unSlash(symbol));
+            doc = (BasicDBObject)JSON.parse(json);
+            coll.insert(doc);
+        }        
     }
     private void sendPrice(String symbol, String tipo, double precio){
-        
-        String json="{ \"type\" : \"tick\", \"symbol\":\""+ unSlash(symbol) +"\",\"entry\":\""+tipo+"\",\"precio\" : "+ precio +"}";
-        
-        try {
-            //esperamos 1 milis pa' que no se peguen los mensajes.
-            Thread.sleep(1);
-            Node.send(json);
-        } catch (IOException ex) {
-            Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
-        }catch (InterruptedException ex) {
-            Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
+        /**
+         * Solo enviamos aperturas ticks si esta habilitado el Streaming en el 
+         * Archivo de configuracion. 
+         */
+        if(this.streaming){
+            String json="{ \"type\" : \"tick\", \"symbol\":\""+ unSlash(symbol) +"\",\"entry\":\""+tipo+"\",\"precio\" : "+ precio +"}";
+            try {
+                //esperamos 1 milis pa' que no se peguen los mensajes.
+                Thread.sleep(1);
+                Node.send(json);
+            } catch (IOException ex) {
+                Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
+            }catch (InterruptedException ex) {
+                Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     /**
