@@ -57,4 +57,8 @@ public class Node {
             Logger.getLogger(Node.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public static void reconnect(){
+        
+    }
 }

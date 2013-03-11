@@ -157,10 +157,21 @@ public class Handler extends MessageCracker{
                 Thread.sleep(1);
                 Node.send(json);
             } catch (IOException ex) {
-                Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
+                this.reconnect();
             }catch (InterruptedException ex) {
                 Logger.getLogger(Candle.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+    }
+    private void reconnect(){
+        try {
+            System.err.println("Node desconectado esperado reconectar ..");
+            Thread.sleep(5000);
+            Node.connect();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     /**
