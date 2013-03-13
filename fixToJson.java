@@ -7,23 +7,24 @@ package coiner;
  * @author omar
  */
 public class fixToJson {
-    
-    public static String parseVela(String moneda,double open, double high, double low, double close,
-                                    double vol){
+
+    public static String parseVela(String moneda, double open, double high, double low, double close,
+            double vol) {
         Date date = GMTDate.getDate();
-        int min = (date.getMinute()-1)<0?0:date.getMinute();
-        String fecha = date.getYear() +  "" + (date.getMonth()<10?"0"+date.getMonth():date.getMonth())
-            + "" + (date.getDay()<10?"0"+date.getDay():date.getDay()) ;
-        String hour = date.getHour()<10?"0"+date.getHour():date.getHour() + "" + (min<10?"0"+min:min)+"00";
+        int min = (date.getMinute() - 1) < 0 ? 0 : date.getMinute();
+        String fecha = date.getYear() + "" + (date.getMonth() < 10 ? "0" + date.getMonth() : date.getMonth())
+                + "" + (date.getDay() < 10 ? "0" + date.getDay() : date.getDay());
+        String hour = date.getHour() < 10 ? "0" + date.getHour() + "" + (min < 10 ? "0" + min : min) + "00"
+                : date.getHour() + "" + (min < 10 ? "0" + min : min) + "00";
         StringBuffer buffer = new StringBuffer();
         buffer.append("{");
-        buffer.append("\"date\":\""+ fecha + "\",");
-        buffer.append("\"hour\": "+ hour + ",");
+        buffer.append("\"date\":\"" + fecha + "\",");
+        buffer.append("\"hour\": " + hour + ",");
         buffer.append("\"Open\":" + open + ",");
         buffer.append("\"High\":" + high + ",");
         buffer.append("\"Low\":" + low + ",");
         buffer.append("\"Close\":" + close + ",");
-        buffer.append("\"Volume\":" + (int)vol );
+        buffer.append("\"Volume\":" + (int) vol);
         buffer.append("}");
         return buffer.toString();
     }

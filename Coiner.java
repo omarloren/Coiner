@@ -23,12 +23,12 @@ public class Coiner {
     private static Logger log = LoggerFactory.getLogger(Coiner.class);
     
     Coiner() throws Exception{
-        /*System.out.println("Ingresa el nombre del archivo de configuracion:");
-        String input = new Scanner(System.in).next();*/
+        System.out.println("Ingresa el nombre del archivo de configuracion:");
+        String input = new Scanner(System.in).next();
         
         InputStream inputS = new BufferedInputStream(
                                 new FileInputStream(
-                                new File("/home/omar/OMS/config/caldera1.cnf")));
+                                new File("/home/omar/OMS/config/"+input+".cnf")));
                                 //new File("/home/omar/OMS/config/GMIDemo00292str.cnf")));
      
         SessionSettings settings = new SessionSettings(inputS);
